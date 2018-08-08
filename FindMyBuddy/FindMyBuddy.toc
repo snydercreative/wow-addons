@@ -1,7 +1,7 @@
 ## Interface: 80000
 ## Author: KilgoreTrout
 ## Title: Find My Buddy
-## Version: 0.2
+## Version: 1.01
 ## Notes: Finds your buddies in a raid group or a party.
 ## SavedVariables: FindMyBuddyDB
 

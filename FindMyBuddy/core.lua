@@ -1,7 +1,7 @@
 FindMyBuddy = LibStub("AceAddon-3.0"):NewAddon("FindMyBuddy", "AceConsole-3.0", "AceEvent-3.0")
 AceGUI = LibStub("AceGUI-3.0")
 
-FindMyBuddyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bunnies!", {
+FindMyBuddyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("FindMyBuddyLDB", {
 	type = "data source",
 	text = "Find My Buddy",
 	icon = "Interface\\Icons\\ability_marksmanship",
@@ -105,7 +105,17 @@ function FindMyBuddy:ShowDistanceMessage(distance)
 end
 
 function FindMyBuddy:SetupDisplay(unitName, target_x, target_y) 
-	local player_x, player_y = C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"), "player"):GetXY();
+	if not C_Map then
+		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
+		self.db.profile.isEnabled = false
+		distanceFontString:Hide()
+		arrow:Hide()
+		timer:Hide()		
+		return
+	end
+
+	local mapId = C_Map.GetBestMapForUnit("player")
+	local player_x, player_y = C_Map.GetPlayerMapPosition(mapId, "player"):GetXY();
 
 	local dx = player_x - target_x
 	local dy = player_y - target_y
@@ -137,9 +147,18 @@ function FindMyBuddy:FindTarget()
 		return
 	end
 
-	local target_x, target_y = C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit(unitName), unitName):GetXY();
+	if C_Map then
+		local mapId = C_Map.GetBestMapForUnit(unitName)
+		local target_x, target_y = C_Map.GetPlayerMapPosition(mapId, unitName):GetXY()
 
-	FindMyBuddy:SetupDisplay(unitName, target_x, target_y)		
+		FindMyBuddy:SetupDisplay(unitName, target_x, target_y)		
+	else
+		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
+		self.db.profile.isEnabled = false
+		timer:Hide()
+		distanceFontString:Hide()
+		arrow:Hide()
+	end
 end
 
 function TimerUpdateHandler(self, elapsed)
