@@ -44,6 +44,7 @@ local menuOptions = {
 local timer = CreateFrame("Frame")
 local addon = CreateFrame("Frame", nil, UIParent)
 local arrow = addon:CreateTexture(nil, "BACKGROUND", nil, -8)
+local arrowShadow = addon:CreateTexture(nil, "BACKGROUND", nil, -8)
 local distanceFontString = addon:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 
 addon:SetSize(32,32)
@@ -57,7 +58,26 @@ arrow:SetRotation(math.rad(0))
 arrow:SetTexture("Interface\\AddOns\\FindMyBuddy\\media\\"..cfg.arrowTexture)
 arrow:Hide()
 
+arrowShadow:SetSize(sqrt(2)*cfg.arrowSize,sqrt(2)*cfg.arrowSize)
+arrowShadow:SetPoint("CENTER", 2, -2)
+arrowShadow:SetVertexColor(unpack({0, 0, 0, .5}))
+arrowShadow:SetBlendMode("BLEND") --"ADD" or "BLEND"
+arrowShadow:SetRotation(math.rad(0))
+arrowShadow:SetTexture("Interface\\AddOns\\FindMyBuddy\\media\\"..cfg.arrowTexture)
+arrowShadow:Hide()
+
 distanceFontString:SetPoint("CENTER", 0, -200)
+
+function DisplayArrows(shouldShow) 
+	if shouldShow == true then
+		arrow:Show()
+		arrowShadow:Show()
+		return
+	end
+	
+	arrow:Hide()
+	arrowShadow:Hide()
+end
 
 function GetAngle(dx, dy)
 	local degrees = math.deg(math.atan(dx / dy))
@@ -109,7 +129,7 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
 		self.db.profile.isEnabled = false
 		distanceFontString:Hide()
-		arrow:Hide()
+		DisplayArrows(false)
 		timer:Hide()		
 		return
 	end
@@ -126,11 +146,13 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 	if distance < FindMyBuddy:GetDeactivationDistance() then
 		timer:Hide()
 		distanceFontString:Hide()
-		arrow:Hide()
+		DisplayArrows(false)
 	else
 		FindMyBuddy:ShowDistanceMessage(distance)
 		arrow:SetRotation(angle)	
-		arrow:Show()
+		arrowShadow:SetRotation(angle)
+
+		DisplayArrows(true)
 	end
 end
 
@@ -157,7 +179,7 @@ function FindMyBuddy:FindTarget()
 		self.db.profile.isEnabled = false
 		timer:Hide()
 		distanceFontString:Hide()
-		arrow:Hide()
+		DisplayArrows(false)
 	end
 end
 
@@ -213,15 +235,15 @@ function FindMyBuddy:PLAYER_TARGET_CHANGED()
 		return
 	end
 
+	DisplayArrows(false)
+
 	if UnitInRaid("player") or UnitInParty("player") then
 		if UnitExists("target") and not UnitIsUnit("target", "player") then
 			timer:Show()
 			distanceFontString:Hide()
-			arrow:Hide()
 		else
-			distanceFontString:Hide()
-			arrow:Hide()
 			timer:Hide()
+			distanceFontString:Hide()
 		end
 	end
 end
