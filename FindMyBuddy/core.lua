@@ -7,25 +7,27 @@ local menuOptions = {
 	handler = FindMyBuddy,
 	type = "group",
 	args = {
-		 deactivationDistance = {
+		deactivationDistance = {
 			name = "Deactivation Distance",
 			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
-			descStyle = "inline",
 			type = "range",
 			min = 5,
 			max = 40,
 			step = 1,
 			get = "GetDeactivationDistance",
-			set = "SetDeactivationDistance"
+			set = "SetDeactivationDistance",
+			width = "double",
+			order = 1
 		},
 		arrowColorPicker = {
 			name = "Arrow Color",
 			desc = "Pick the color and transparency of the directional arrow.",
-			descStyle = "inline",
 			type = "color",
 			get = "GetArrowColor",
 			set = "SetArrowColor",
-			hasAlpha = true
+			hasAlpha = true,
+			width = "double",
+			order = 2
 		}
 	}
 }
@@ -56,7 +58,25 @@ local timer = CreateFrame("Frame")
 local addon = CreateFrame("Frame", nil, UIParent)
 local arrow = addon:CreateTexture(nil, "BACKGROUND", nil, -8)
 local arrowShadow = addon:CreateTexture(nil, "BACKGROUND", nil, -8)
-local distanceFontString = addon:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+
+local distanceFrame = CreateFrame("Frame")
+distanceFrame:SetPoint("CENTER", 0, -150)
+distanceFrame:SetHeight(25)
+distanceFrame:SetWidth(225)
+distanceFrame:SetFrameStrata("BACKGROUND")
+distanceFrame:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", 
+	edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
+	tile = true, 
+	tileSize = 16, 
+	edgeSize = 16, 
+	insets = { left = 4, right = 4, top = 4, bottom = 4 }
+})
+distanceFrame:SetBackdropColor(0, 0, 0, 1)
+distanceFrame:Hide()
+
+local distanceFontString = distanceFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+distanceFontString:SetPoint("CENTER")
+distanceFontString:Show()
 
 addon:SetSize(32,32)
 addon:SetPoint("CENTER")
@@ -77,7 +97,25 @@ arrowShadow:SetRotation(math.rad(0))
 arrowShadow:SetTexture("Interface\\AddOns\\FindMyBuddy\\media\\"..cfg.arrowTexture)
 arrowShadow:Hide()
 
-distanceFontString:SetPoint("CENTER", 0, -200)
+
+
+
+-- local f=CreateFrame("Frame","ProfitCraftablesFrame", UIParent) --Create a frame
+-- f:SetFrameStrata("BACKGROUND") --Set its strata
+-- f:SetHeight(50) --Give it height
+-- f:SetWidth(100) --and width
+
+-- f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", 
+-- 	edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
+-- 	tile = true, tileSize = 16, edgeSize = 16, 
+-- 	insets = { left = 4, right = 4, top = 4, bottom = 4 }
+-- })Put it in the centre of the parent frame (UIParent)
+
+
+
+
+
+
 
 function DisplayArrows(shouldShow) 
 	if shouldShow == true then
@@ -130,16 +168,19 @@ function FindMyBuddy:MinimapButtonClicked()
 	end
 end
 
-function FindMyBuddy:ShowDistanceMessage(distance)
-	distanceFontString:Show()
-	distanceFontString:SetText("Distance to target: " .. distance)
+function FindMyBuddy:ShowDistanceMessage(distance, target)
+	local name, realm = UnitName(target)
+	distanceFontString:SetText("Distance to " .. name ..": " .. distance)
+	local stringWidth = distanceFontString:GetStringWidth() + 30
+	distanceFrame:SetWidth(stringWidth)
+	distanceFrame:Show()
 end
 
 function FindMyBuddy:SetupDisplay(unitName, target_x, target_y) 
 	if not C_Map then
 		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
 		self.db.profile.isEnabled = false
-		distanceFontString:Hide()
+		distanceFrame:Hide()
 		DisplayArrows(false)
 		timer:Hide()		
 		return
@@ -156,10 +197,10 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 	
 	if distance < FindMyBuddy:GetDeactivationDistance() then
 		timer:Hide()
-		distanceFontString:Hide()
+		distanceFrame:Hide()
 		DisplayArrows(false)
 	else
-		FindMyBuddy:ShowDistanceMessage(distance)
+		FindMyBuddy:ShowDistanceMessage(distance, unitName)
 		arrow:SetRotation(angle)	
 		arrowShadow:SetRotation(angle)
 
@@ -189,7 +230,7 @@ function FindMyBuddy:FindTarget()
 		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
 		self.db.profile.isEnabled = false
 		timer:Hide()
-		distanceFontString:Hide()
+		distanceFrame:Hide()
 		DisplayArrows(false)
 	end
 end
@@ -253,6 +294,7 @@ function FindMyBuddy:OnInitialize()
 end
 
 function FindMyBuddy:OnEnable()
+	FindMyBuddy:Print("Type /fmb to access settings.")
 end
 
 function FindMyBuddy:OnDisable()
@@ -268,10 +310,18 @@ function FindMyBuddy:PLAYER_TARGET_CHANGED()
 	if UnitInRaid("player") or UnitInParty("player") then
 		if UnitExists("target") and not UnitIsUnit("target", "player") then
 			timer:Show()
-			distanceFontString:Hide()
+			distanceFrame:Hide()
 		else
 			timer:Hide()
-			distanceFontString:Hide()
+			distanceFrame:Hide()
 		end
 	end
+end
+
+SLASH_FINDMYBUDDY1 = "/fmb"
+
+SlashCmdList.FINDMYBUDDY = function(input)
+	InterfaceOptionsFrame_OpenToCategory("FindMyBuddy")
+	InterfaceOptionsFrame_OpenToCategory("FindMyBuddy")
+	InterfaceOptionsFrame_OpenToCategory("FindMyBuddy")
 end
