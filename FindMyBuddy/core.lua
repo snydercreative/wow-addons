@@ -1,6 +1,35 @@
 FindMyBuddy = LibStub("AceAddon-3.0"):NewAddon("FindMyBuddy", "AceConsole-3.0", "AceEvent-3.0")
 AceGUI = LibStub("AceGUI-3.0")
 
+
+local menuOptions = {
+	name = "Find My Buddy",
+	handler = FindMyBuddy,
+	type = "group",
+	args = {
+		 deactivationDistance = {
+			name = "Deactivation Distance",
+			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
+			descStyle = "inline",
+			type = "range",
+			min = 5,
+			max = 40,
+			step = 1,
+			get = "GetDeactivationDistance",
+			set = "SetDeactivationDistance"
+		},
+		arrowColorPicker = {
+			name = "Arrow Color",
+			desc = "Pick the color and transparency of the directional arrow.",
+			descStyle = "inline",
+			type = "color",
+			get = "GetArrowColor",
+			set = "SetArrowColor",
+			hasAlpha = true
+		}
+	}
+}
+
 FindMyBuddyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("FindMyBuddyLDB", {
 	type = "data source",
 	text = "Find My Buddy",
@@ -199,34 +228,6 @@ function FindMyBuddy:SetArrowColor(_, r, g, b, a)
 	self.db.profile.arrowColor = {r, g, b, a}
 	arrow:SetVertexColor(unpack(self.db.profile.arrowColor))
 end
-
-local menuOptions = {
-	name = "Find My Buddy",
-	handler = FindMyBuddy,
-	type = "group",
-	args = {
-		 deactivationDistance = {
-			name = "Deactivation Distance",
-			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
-			descStyle = "inline",
-			type = "range",
-			min = 5,
-			max = 40,
-			step = 1,
-			get = "GetDeactivationDistance",
-			set = "SetDeactivationDistance"
-		},
-		arrowColorPicker = {
-			name = "Arrow Color",
-			desc = "Pick the color and transparency of the directional arrow.",
-			descStyle = "inline",
-			type = "color",
-			get = "GetArrowColor",
-			set = "SetArrowColor",
-			hasAlpha = true
-		}
-	}
-}
 
 function FindMyBuddy:OnInitialize()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
