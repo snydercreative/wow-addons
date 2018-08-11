@@ -30,13 +30,23 @@ local menuOptions = {
 	args = {
 		 deactivationDistance = {
 			name = "Deactivation Distance",
-			desc = "Once you're within this distance from your target, the arrow will disappear.",
+			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
+			descStyle = "inline",
 			type = "range",
 			min = 5,
 			max = 40,
 			step = 1,
 			get = "GetDeactivationDistance",
 			set = "SetDeactivationDistance"
+		},
+		arrowColorPicker = {
+			name = "Arrow Color",
+			desc = "Pick the color and transparency of the directional arrow.",
+			descStyle = "inline",
+			type = "color",
+			get = "GetArrowColor",
+			set = "SetArrowColor",
+			hasAlpha = true
 		}
 	}
 }
@@ -205,6 +215,19 @@ function FindMyBuddy:SetDeactivationDistance(info, newValue)
 	self.deactivationDistance = newValue
 end
 
+function FindMyBuddy:GetArrowColor()
+	if (not self.arrowColor) then
+		self.arrowColor = cfg.arrowColor
+	end
+
+	return unpack(self.arrowColor)
+end
+
+function FindMyBuddy:SetArrowColor(r, g, b, a)
+	self.arrowColor = {r, g, b, a}
+	arrow:SetVertexColor(unpack(self.arrowColor))
+end
+
 function FindMyBuddy:OnInitialize()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 
@@ -221,6 +244,9 @@ function FindMyBuddy:OnInitialize()
 			deactivationDistance = 25
 		},
 	})
+
+	arrow:SetVertexColor(unpack(FindMyBuddy:GetArrowColor()))
+
 	icon:Register("Find My Buddy", FindMyBuddyLDB, self.db.profile.minimap)
 end
 
