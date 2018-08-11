@@ -23,34 +23,6 @@ local cfg = {
 	arrowBlendMode = "ADD"
 }
 
-local menuOptions = {
-	name = "Find My Buddy",
-	handler = FindMyBuddy,
-	type = "group",
-	args = {
-		 deactivationDistance = {
-			name = "Deactivation Distance",
-			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
-			descStyle = "inline",
-			type = "range",
-			min = 5,
-			max = 40,
-			step = 1,
-			get = "GetDeactivationDistance",
-			set = "SetDeactivationDistance"
-		},
-		arrowColorPicker = {
-			name = "Arrow Color",
-			desc = "Pick the color and transparency of the directional arrow.",
-			descStyle = "inline",
-			type = "color",
-			get = "GetArrowColor",
-			set = "SetArrowColor",
-			hasAlpha = true
-		}
-	}
-}
-
 local timer = CreateFrame("Frame")
 local addon = CreateFrame("Frame", nil, UIParent)
 local arrow = addon:CreateTexture(nil, "BACKGROUND", nil, -8)
@@ -216,17 +188,45 @@ function FindMyBuddy:SetDeactivationDistance(info, newValue)
 end
 
 function FindMyBuddy:GetArrowColor()
-	if (not self.arrowColor) then
-		self.arrowColor = cfg.arrowColor
+	if (not self.db.profile.arrowColor) then
+		self.db.profile.arrowColor = cfg.arrowColor
 	end
 
-	return unpack(self.arrowColor)
+	return unpack(self.db.profile.arrowColor)
 end
 
-function FindMyBuddy:SetArrowColor(r, g, b, a)
-	self.arrowColor = {r, g, b, a}
-	arrow:SetVertexColor(unpack(self.arrowColor))
+function FindMyBuddy:SetArrowColor(_, r, g, b, a)
+	self.db.profile.arrowColor = {r, g, b, a}
+	arrow:SetVertexColor(unpack(self.db.profile.arrowColor))
 end
+
+local menuOptions = {
+	name = "Find My Buddy",
+	handler = FindMyBuddy,
+	type = "group",
+	args = {
+		 deactivationDistance = {
+			name = "Deactivation Distance",
+			desc = "Once you're within this distance from your target, the directional arrow will disappear.",
+			descStyle = "inline",
+			type = "range",
+			min = 5,
+			max = 40,
+			step = 1,
+			get = "GetDeactivationDistance",
+			set = "SetDeactivationDistance"
+		},
+		arrowColorPicker = {
+			name = "Arrow Color",
+			desc = "Pick the color and transparency of the directional arrow.",
+			descStyle = "inline",
+			type = "color",
+			get = "GetArrowColor",
+			set = "SetArrowColor",
+			hasAlpha = true
+		}
+	}
+}
 
 function FindMyBuddy:OnInitialize()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -241,11 +241,12 @@ function FindMyBuddy:OnInitialize()
 				hide = false,
 			},
 			isEnabled = true,
-			deactivationDistance = 25
+			deactivationDistance = 25,
+			arrowColor = {1, 0, 0, .5}
 		},
 	})
 
-	arrow:SetVertexColor(unpack(FindMyBuddy:GetArrowColor()))
+	arrow:SetVertexColor(FindMyBuddy:GetArrowColor())
 
 	icon:Register("Find My Buddy", FindMyBuddyLDB, self.db.profile.minimap)
 end
