@@ -34,8 +34,7 @@ function SpellTimerUpdateHandler(self, elapsed)
 				table.insert(atonementTargets, { 
 					targetName = UnitName("target"), 
 					duration = duration, 
-					expiration = expiration, 
-					duration = duration 
+					expiration = expiration
 				})
 				buffTimer:Show()
 				spellTimer:Hide()
@@ -78,7 +77,20 @@ function ButtonClicked(self, button)
 	self:SetAttribute("macrotext", "/targetexact " .. targetName)
 end
 
-function AddBuffedPlayer(name, remaining)
+
+function MoveEveryoneUp(index)
+	local kids = { buffListFrame:GetChildren() };
+	local accumulator = -10
+
+	for _, child in ipairs(kids) do
+		if (child:IsVisible()) then
+			child:SetPoint("TOP", 0, accumulator)
+			accumulator = accumulator - 25
+		end
+	end
+end
+
+function AddBuffedPlayer(name, remaining, index)
 	local frameParent = buffListFrame
 
 	if (buffListFrame:GetNumChildren() > 0) then
@@ -89,7 +101,7 @@ function AddBuffedPlayer(name, remaining)
 		end
 	end
 
-	local button = CreateFrame("Button", name, buffListFrame, "ButtonTrackerSecureActionButtonTemplate");
+	local button = CreateFrame("Button", nil, buffListFrame, "ButtonTrackerSecureActionButtonTemplate");
 	button:SetPoint("TOP", frameParent, "TOP", 0, -25)
 	button:SetWidth(200)
 	button:SetHeight(20)
@@ -114,15 +126,19 @@ function AddBuffedPlayer(name, remaining)
 		button = button,
 		backgroundFrame = backgroundFrame
 	}
-
 end
+
 
 function UpdateButton(index, name, expiration, duration) 	
 	if (atonementBuffs[name]) then
 		if (expiration < 0) then
+			atonementBuffs[name].button:Hide()
 			table.remove(atonementBuffs, index)
 			table.remove(atonementTargets, index)
+
+			MoveEveryoneUp(index)
 		else
+			atonementBuffs[name].button:Show()
 			atonementBuffs[name].button:SetNormalFontObject("GameFontNormal")
 			local font = atonementBuffs[name].button:GetNormalFontObject();
 			atonementBuffs[name].button:SetText(name .. " " .. expiration)
@@ -133,7 +149,7 @@ function UpdateButton(index, name, expiration, duration)
 			atonementBuffs[name].backgroundFrame:SetWidth(newWidth)
 		end 
 	else
-		AddBuffedPlayer(name, expiration)
+		AddBuffedPlayer(name, expiration, index)
 	end
 end
 
