@@ -1,0 +1,10 @@
+## Interface: 80000
+## Author: KilgoreTrout
+## Title: Atonement Tracker
+## Version: 1.1
+## Notes: Track your atonements.
+## SavedVariables: AtonementTrackerDB
+
+embeds.xml
+BuffTracker.xml
+core.lua
