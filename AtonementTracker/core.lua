@@ -7,7 +7,16 @@ local buffTimer = CreateFrame("Frame")
 local updateInterval = 0.1
 
 local buffListFrame = CreateFrame("Frame", nil, UIParent)
-buffListFrame:SetPoint("CENTER")
+
+
+buffListFrame:SetMovable(true)
+buffListFrame:EnableMouse(true)
+buffListFrame:RegisterForDrag("LeftButton")
+buffListFrame:SetScript("OnDragStart", buffListFrame.StartMoving)
+buffListFrame:SetScript("OnDragStop", buffListFrame.StopMovingOrSizing)
+
+
+buffListFrame:SetPoint("CENTER", 350, 0)
 buffListFrame:SetHeight(225)
 buffListFrame:SetWidth(225)
 buffListFrame:SetFrameStrata("BACKGROUND")
