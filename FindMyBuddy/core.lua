@@ -189,8 +189,8 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 end
 
 function FindMyBuddy:DisableAddon() 
-	FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
-	self.db.profile.isEnabled = false
+	-- FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
+	-- self.db.profile.isEnabled = false
 	timer:Hide()
 	distanceFrame:Hide()
 	DisplayArrows(false)
@@ -295,9 +295,9 @@ function FindMyBuddy:OnDisable()
 end
 
 function FindMyBuddy:PLAYER_TARGET_CHANGED()
-	if not self.db.profile.isEnabled then
-		return
-	end
+	-- if not self.db.profile.isEnabled then
+	-- 	return
+	-- end
 
 	DisplayArrows(false)
 
