@@ -97,26 +97,6 @@ arrowShadow:SetRotation(math.rad(0))
 arrowShadow:SetTexture("Interface\\AddOns\\FindMyBuddy\\media\\"..cfg.arrowTexture)
 arrowShadow:Hide()
 
-
-
-
--- local f=CreateFrame("Frame","ProfitCraftablesFrame", UIParent) --Create a frame
--- f:SetFrameStrata("BACKGROUND") --Set its strata
--- f:SetHeight(50) --Give it height
--- f:SetWidth(100) --and width
-
--- f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", 
--- 	edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
--- 	tile = true, tileSize = 16, edgeSize = 16, 
--- 	insets = { left = 4, right = 4, top = 4, bottom = 4 }
--- })Put it in the centre of the parent frame (UIParent)
-
-
-
-
-
-
-
 function DisplayArrows(shouldShow) 
 	if shouldShow == true then
 		arrow:Show()
@@ -208,6 +188,14 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 	end
 end
 
+function FindMyBuddy:DisableAddon() 
+	FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
+	self.db.profile.isEnabled = false
+	timer:Hide()
+	distanceFrame:Hide()
+	DisplayArrows(false)
+end
+
 function FindMyBuddy:FindTarget() 
 	local raidUnitIndex = UnitInRaid("target")
 	local partyUnitIndex = UnitInParty("target")
@@ -223,15 +211,21 @@ function FindMyBuddy:FindTarget()
 
 	if C_Map then
 		local mapId = C_Map.GetBestMapForUnit(unitName)
-		local target_x, target_y = C_Map.GetPlayerMapPosition(mapId, unitName):GetXY()
 
-		FindMyBuddy:SetupDisplay(unitName, target_x, target_y)		
+		local test = C_Map.GetPlayerMapPosition(mapId, unitName)
+
+		local mapInfo = C_Map.GetMapInfo(mapId);
+
+		local playerMapPositionTable = C_Map.GetPlayerMapPosition(mapId, unitName)
+		
+		if playerMapPositionTable then
+			local target_x, target_y = playerMapPositionTable:GetXY()
+			FindMyBuddy:SetupDisplay(unitName, target_x, target_y)		
+		else 
+			FindMyBuddy:DisableAddon() 
+		end
 	else
-		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
-		self.db.profile.isEnabled = false
-		timer:Hide()
-		distanceFrame:Hide()
-		DisplayArrows(false)
+		FindMyBuddy:DisableAddon() 
 	end
 end
 
