@@ -1,0 +1,9 @@
+{
+	"Interface": 80000,
+	"Author": "KilgoreTrout",
+	"Title": "FindMyBuddy",
+	"Version": "1.1.2",
+	"Notes": "Finds your buddies in a raid group or a party.",
+	"SavedVariables": "FindMyBuddyDB",
+	"Files": ["embeds.xml", "core.lua"]
+}
