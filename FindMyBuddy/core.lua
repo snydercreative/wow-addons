@@ -156,9 +156,19 @@ function FindMyBuddy:ShowDistanceMessage(distance, target)
 	distanceFrame:Show()
 end
 
+function FindMyBuddy:DisableAddon(errorMessage) 
+	if errorMessage then
+		FindMyBuddy:Print(errorMessage)
+	end
+
+	timer:Hide()
+	distanceFrame:Hide()
+	DisplayArrows(false)
+end
+
 function FindMyBuddy:SetupDisplay(unitName, target_x, target_y) 
 	if not C_Map then
-		FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
+		FindMyBuddy:Print("Error loading the new maps API. Disabling addon.")
 		self.db.profile.isEnabled = false
 		distanceFrame:Hide()
 		DisplayArrows(false)
@@ -167,11 +177,16 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 	end
 
 	local mapId = C_Map.GetBestMapForUnit("player")
-	local player_x, player_y = C_Map.GetPlayerMapPosition(mapId, "player"):GetXY();
+	local playerMapPosition = C_Map.GetPlayerMapPosition(mapId, "player")
 
+	if not playerMapPosition then
+		FindMyBuddy:DisableAddon("Can't locate player. Disabling addon; please re-enable outside.")
+		return
+	end
+
+	local player_x, player_y = playerMapPosition:GetXY();
 	local dx = player_x - target_x
 	local dy = player_y - target_y
-
 	local distance, checkedDistance = math.floor(UnitDistanceSquared(unitName)^0.5)
 	local angle = GetAngle(dx, dy)
 	
@@ -188,13 +203,6 @@ function FindMyBuddy:SetupDisplay(unitName, target_x, target_y)
 	end
 end
 
-function FindMyBuddy:DisableAddon() 
-	-- FindMyBuddy:Print("Error loading the new maps API. Disabling addon. ")
-	-- self.db.profile.isEnabled = false
-	timer:Hide()
-	distanceFrame:Hide()
-	DisplayArrows(false)
-end
 
 function FindMyBuddy:FindTarget() 
 	local raidUnitIndex = UnitInRaid("target")
@@ -212,20 +220,17 @@ function FindMyBuddy:FindTarget()
 	if C_Map then
 		local mapId = C_Map.GetBestMapForUnit(unitName)
 
-		local test = C_Map.GetPlayerMapPosition(mapId, unitName)
-
-		local mapInfo = C_Map.GetMapInfo(mapId);
-
 		local playerMapPositionTable = C_Map.GetPlayerMapPosition(mapId, unitName)
 		
 		if playerMapPositionTable then
 			local target_x, target_y = playerMapPositionTable:GetXY()
+
 			FindMyBuddy:SetupDisplay(unitName, target_x, target_y)		
 		else 
-			FindMyBuddy:DisableAddon() 
+			FindMyBuddy:DisableAddon("Can't find target. This is usually because they're in an instance and you're not, or vice versa. Disabling addon; please re-enable outside.") 
 		end
 	else
-		FindMyBuddy:DisableAddon() 
+		FindMyBuddy:DisableAddon("Error loading the new maps API. Disabling addon.") 
 	end
 end
 
@@ -295,10 +300,6 @@ function FindMyBuddy:OnDisable()
 end
 
 function FindMyBuddy:PLAYER_TARGET_CHANGED()
-	-- if not self.db.profile.isEnabled then
-	-- 	return
-	-- end
-
 	DisplayArrows(false)
 
 	if UnitInRaid("player") or UnitInParty("player") then
