@@ -1,0 +1,10 @@
+## Interface: 80000
+## Author: KilgoreTrout
+## Title: Hey Wow Great
+## Version: 1.1
+## Notes: Lets achievers know what you really think of them.
+## SavedVariables: HeyWowGreatDB
+
+embeds.xml
+
+core.lua

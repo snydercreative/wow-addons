@@ -145,7 +145,6 @@ function UpdateButton(index, name, expiration, duration)
 			table.remove(atonementBuffs, index)
 			table.remove(atonementTargets, index)
 
-			MoveEveryoneUp(index)
 		else
 			atonementBuffs[name].button:Show()
 			atonementBuffs[name].button:SetNormalFontObject("GameFontNormal")
@@ -157,6 +156,8 @@ function UpdateButton(index, name, expiration, duration)
 			local newWidth = 200 * remainingPercent
 			atonementBuffs[name].backgroundFrame:SetWidth(newWidth)
 		end 
+		
+		MoveEveryoneUp(index)
 	else
 		AddBuffedPlayer(name, expiration, index)
 	end
