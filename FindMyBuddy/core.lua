@@ -157,9 +157,9 @@ function FindMyBuddy:ShowDistanceMessage(distance, target)
 end
 
 function FindMyBuddy:DisableAddon(errorMessage) 
-	if errorMessage then
-		FindMyBuddy:Print(errorMessage)
-	end
+	-- if errorMessage then
+	-- 	FindMyBuddy:Print(errorMessage)
+	-- end
 
 	timer:Hide()
 	distanceFrame:Hide()
